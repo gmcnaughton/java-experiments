@@ -1,29 +1,76 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.StringJoiner;
 
 /**
- * Heap implements the standard heap data structure.
+ * Heap implements a standard heap data structure.
  *
- * A heap is a tree which maintains the 'heap property': the value at a parent
- * node is greater-than-or-equal-to (max-heap) or less-than-or-equal-to (min-heap_)
- * its child nodes. This property is transitive, so by definition a node's value
- * is great-than-or-equal-to all of its descedants' values.
+ * A heap is a tree which maintains the heap property: the value of a parent
+ * node is greater-than-or-equal-to (for a max-heap) or less-than-or-equal-to
+ * (min-heap) its child nodes. This property is transitive, meaning a node's
+ * value is greater-than-or-equal-to all of its descendants.
  *
  * No other relationship is guaranteed to hold between nodes in the tree.
- * Siblings are not necessarily ordered with respect to each other. Only the
- * comparison relationship between levels is enforced.
+ * Siblings are not ordered with respect to each other. Only the relationship
+ * between parents and children is enforced.
  *
- * By definition values in a heap must be comparable, so that the heap property
- * can be maintained.
+ * Values in a heap must be comparable (naturally ordered) so that the heap
+ * property can be maintained.
+ *
+ * This implementation is not threadsafe.
+ *
+ * Examples:
+ *
+ *     Heap h = new Heap<Integer>(Heap.Type.MIN);
+ *     h.add(1);
+ *     h.add(100);
+ *     h.add(2);
+ *
+ *     h.pop(); // => 1
+ *     h.pop(); // => 2
+ *     h.pop(); // => 100
+ *     h.pop(); // => IllegalStateException
+ *
+ * Running:
+ *
+ *   javac -Xlint:unchecked Heap.java && java Heap
  */
-public class HeapValidator {
+public class Heap<V extends Comparable<? super V>> implements Iterable<V> {
   public static void main(String[] args) {
+    tests();
+    // Heap<Integer> h = new Heap<Integer>(Type.MIN);
+    // h.add(100);
+    // h.add(2);
+    // h.add(3);
+    // h.add(3);
+    // h.add(101);
+    // h.add(4);
+    // h.add(2);
+    // System.out.println(h);
+
+    // System.out.println("\nPopping...");
+    // while (!h.isEmpty()) {
+    //   Integer i = h.pop();
+    //   System.out.println(i);
+    //   System.out.println(h);
+    //   System.out.println("");
+    // }
+    // System.out.println("Done.");
+
+    // h.add(100000);
+    // h.add(1);
+    // h.add(2);
+    // h.pop();
+    // System.out.println(h);
+  }
+
+  public static void tests() {
     test("Empty", new ArrayList<Integer>(Arrays.asList()), Type.MAX, true);
     test("Empty",new ArrayList<Integer>(Arrays.asList()), Type.MIN, true);
 
-    test("Unary null", new ArrayList<Integer>(Arrays.asList((Integer)null)), Type.MAX, true);
-    test("Unary null", new ArrayList<Integer>(Arrays.asList((Integer)null)), Type.MIN, true);
+    // test("Unary null", new ArrayList<Integer>(Arrays.asList((Integer)null)), Type.MAX, true);
+    // test("Unary null", new ArrayList<Integer>(Arrays.asList((Integer)null)), Type.MIN, true);
 
     test("Unary", new ArrayList<Integer>(Arrays.asList(1)), Type.MAX, true);
     test("Unary", new ArrayList<Integer>(Arrays.asList(1)), Type.MIN, true);
@@ -35,7 +82,7 @@ public class HeapValidator {
     test("Equal", new ArrayList<Integer>(Arrays.asList(1, 1, 1)), Type.MAX, true);
 
     // test("With some nulls", new ArrayList<Integer>(Arrays.asList(1, 1, (Integer)null)), Type.MIN, true);
-    test("With some nulls", new ArrayList<Integer>(Arrays.asList(1, (Integer)null, 1)), Type.MAX, true);
+    // test("With some nulls", new ArrayList<Integer>(Arrays.asList(1, (Integer)null, 1)), Type.MAX, true);
 
     test("Complex", new ArrayList<Integer>(Arrays.asList(
                     1,
@@ -51,109 +98,186 @@ public class HeapValidator {
       9, 3, 5, 101, 10001, 9998, /*here*/1, 9999)
     ), Type.MIN, false);
 
-    test("Unbalanced", new ArrayList<Integer>(Arrays.asList(
-                    1,
-           2,                null,
-        3,    null,    null,      null,
-      null, null, null, null, null, null, null, null)
-    ), Type.MIN, true);
+    // test("Unbalanced", new ArrayList<Integer>(Arrays.asList(
+    //                 1,
+    //        2,                null,
+    //     3,    null,    null,      null,
+    //   null, null, null, null, null, null, null, null)
+    // ), Type.MIN, true);
   }
+
+  public static void test(String s, ArrayList<Integer> arr, Type type, boolean expected) {
+    Heap<Integer> h = new Heap<Integer>(type);
+    for (Integer i : arr) {
+      h.add(i);
+    }
+    System.out.println(s + ": " + h);
+  }
+
+  //////////////////////////////////////////////////////////////////////////////
 
   public enum Type {
     MIN,
     MAX
   }
 
-  public static <V2 extends Comparable<? super V2>> void test(String s, ArrayList<V2> h, Heap.Type type, boolean expected) {
-    boolean actual = hasHeapProperty(h, type);
-    if (expected != actual) {
-      System.out.println("*** Error: mismatch: " + s + " (expected " + expected + ", actual " + actual + ", type = " + type + ")");
+  private ArrayList<V> _values;
+  private Type _type;
+
+  public Heap(Type type) {
+    _values = new ArrayList<V>();
+    _type = type;
+  }
+
+  public V peek() { // a.k.a. find-max, find-min
+    if (_values.isEmpty()) throw new IllegalStateException("Heap is empty");
+
+    return _values.get(0);
+  }
+
+  public void add(V val) { // a.k.a. push
+    if (val == null) throw new IllegalArgumentException("Cannot add null to heap");
+
+    _values.add(val);
+    if (_values.size() > 1) {
+      _siftUp(_values.size() - 1);
+    }
+
+    _assertInvariant();
+  }
+
+  public V pop() {
+    if (_values.isEmpty()) throw new IllegalStateException("Heap is empty");
+
+    V val = _values.get(0);
+    V lastVal = _values.remove(_values.size() - 1);
+
+    if (!_values.isEmpty()) {
+      _values.set(0, lastVal);
+      _siftDown(0);
+    }
+
+    _assertInvariant();
+    return val;
+  }
+
+  public boolean valid() {
+    return _invariant();
+  }
+
+  public Iterator<V> iterator() {
+    return _values.iterator();
+  }
+
+  public boolean isEmpty() {
+    return _values.isEmpty();
+  }
+
+  public int size() {
+    return _values.size();
+  }
+
+  // sift up, aka swap up, aka bubble up
+  // used when a node has been inserted; it's added to the end and then bubbles up (O(log N) swaps)
+  private void _siftUp(int index) {
+    // starting at index, move a value up until the heap property is satisfied
+    // by swapping it with its parent and then checking again
+    if (index < 1) return;
+ 
+    int parentIndex = _parentIndex(index);
+    V parentVal = _values.get(parentIndex);
+    V childVal = _values.get(index);
+    if (!_valid(parentVal, childVal)) {
+      _swap(parentIndex, index);
+      _siftUp(parentIndex); // WARNING: recursion!
+    }
+  }
+
+  // sift down, aka swap down, aka bubble down
+  // used when a node has been deleted; the last node in the heap is moved into its place and then bubbled down (O(log N) swaps)
+  private void _siftDown(int index) {
+    // starting at index, move a value down until the heap property is satisfied
+    // * if it is greater than both of its children, no change is required
+    // * otherwise, swap it with whichever child is greater (so the new parent
+    //   upholds the heap property) and then repeat
+
+    int leftChildIndex = _leftChildIndex(index);
+    int rightChildIndex = _rightChildIndex(index);
+    int size = _values.size();
+    V parentVal = _values.get(index);
+
+    if (rightChildIndex < size) {
+      V leftChildVal = _values.get(leftChildIndex);
+      V rightChildVal = _values.get(rightChildIndex);
+
+      if (!_valid(parentVal, leftChildVal) || !_valid(parentVal, rightChildVal)) {
+        int swapIndex;
+        if (_type == Type.MAX) {
+          swapIndex = (leftChildVal.compareTo(rightChildVal) >= 0 ? leftChildIndex : rightChildIndex);
+        } else {
+          swapIndex = (leftChildVal.compareTo(rightChildVal) <= 0 ? leftChildIndex : rightChildIndex);
+        }
+        _swap(index, swapIndex);
+        _siftDown(swapIndex);
+      } else {
+        // Heap property upheld vs both children; nothing to do
+      }
+    } else if (leftChildIndex < size) {
+      V leftChildVal = _values.get(leftChildIndex);
+      if (!_valid(parentVal, leftChildVal)) {
+        _swap(index, leftChildIndex);
+        _siftDown(leftChildIndex);
+      } else {
+        // Heap property upheld vs only child; nothing to do
+      }
     } else {
-      System.out.println("Success: " + s + " (" + type + ")");
+      // No children, heap property trivially upheld; nothing to do
     }
   }
 
-  public static <V2 extends Comparable<? super V2>> boolean hasHeapProperty(ArrayList<V2> h, Heap.Type type) {
-    return hasHeapPropertyIterativeBackwards(h, type);
+  private int _parentIndex(int index) {
+    return ((index + 1) >> 1) - 1;
   }
 
-  // Walks forwards through the tree, starting frmo the 
-  public static <V2 extends Comparable<? super V2>> boolean hasHeapPropertyRecurse(ArrayList<V2> h, Heap.Type type) {
-    if (h.isEmpty()) return true;
-
-    // for each item in h
-    // its value needs to be greater-than-or-equal-to the value of its children (if any)
-    // or its children may be null (empty) indicating the end of a branch
-    return _hasHeapPropertyRecurse(h, type, 0);
+  private int _leftChildIndex(int index) {
+    return ((index + 1) << 1) - 1;
   }
 
-  // Walks backwards through through the tree, starting from leaves and going
-  // up towards the root, testing child values against their parent.
-  // Parents are guaranteed to have a value if child has a value, otherwise
-  // the tree structure is invalid (orphaned tree node).
-  //
-  // This is O(N) on the size of the array, which worst-cases to 2^M values in the heap
-  // if the heap is pathologically unbalanced (as we scan every slot in every level
-  // of the tree, which for a sparse tree could include a huge number of empty slots).
-  public static <V2 extends Comparable<? super V2>> boolean _hasHeapPropertyRecurse(ArrayList<V2> h, Heap.Type type, int index) {
-    V2 val = h.get(index);
-    if (val == null) return true;
-
-    int leftIndex = ((index + 1) << 1) - 1;
-    int rightIndex = ((index + 1) << 1);
-
-    V2 left = null;
-    V2 right = null;
-
-    if (leftIndex < h.size()) {
-      left = h.get(leftIndex);
-      if (left != null) {
-        int cmp = val.compareTo(left);
-        if (type == Heap.Type.MAX ? cmp < 0 : cmp > 0) {
-          System.out.println("HEAP VIOLATION: parent value (" + val + "), child value (" + left + "), heap type = " + type);
-          return false;
-        }
-      }
-    }
-
-    if (rightIndex < h.size()) {
-      right = h.get(rightIndex);
-      if (right != null) {
-        int cmp = val.compareTo(right);
-        if (type == Heap.Type.MAX ? cmp < 0 : cmp > 0) {
-          System.out.println("HEAP VIOLATION: parent value (" + val + "), child value (" + right + "), heap type = " + type);
-          return false;
-        }
-      }
-    }
-
-    return (left == null || _hasHeapPropertyRecurse(h, type, leftIndex)) &&
-           (right == null || _hasHeapPropertyRecurse(h, type, rightIndex));
+  private int _rightChildIndex(int index) {
+    return ((index + 1) << 1);
   }
 
-  // Walks backwards through through the heap, testing children against their parents.
-  // Parents are guaranteed to have a value if children have a value, otherwise it is an invalid
-  // tree (orphaned child node).
-  //
-  // This is O(N) on the size of the array, which worst-cases to 2^M values in the heap
-  // if the heap is pathologically unbalanced (as we scan every slot in every level
-  // of the tree, which for a sparse tree could include a huge number of empty slots).
-  public static <V2 extends Comparable<? super V2>> boolean hasHeapPropertyIterativeBackwards(ArrayList<V2> h, Heap.Type type) {
+  private void _swap(int index1, int index2) {
+    V val = _values.get(index2);
+    _values.set(index2, _values.get(index1));
+    _values.set(index1, val);
+  }
+
+  private boolean _valid(V parentVal, V childVal) {
+    int cmp = parentVal.compareTo(childVal);
+    return (_type == Type.MAX) ? cmp >= 0 : cmp <= 0;
+  }
+
+  private boolean _invariant() {
     // Note: stop when we reach the root element (i == 0); a one-element heap trivially fulfills the heap property
-    for (int i = h.size() - 1; i > 0; i--) {
-      V2 val = h.get(i);
-      if (val == null) continue;
-
-      int parentIndex = ((i + 1) >> 1) - 1;
-      V2 parentVal = h.get(parentIndex);
-
-      int cmp = parentVal.compareTo(val);
-      if (type == Heap.Type.MAX ? cmp < 0 : cmp > 0) {
-        System.out.println("HEAP VIOLATION: parent value (" + parentVal + "), child value (" + val + "), heap type = " + type);
-        return false;
-      }
+    for (int i = size() - 1; i > 0; i--) {
+      V val = _values.get(i);
+      int parentIndex = _parentIndex(i);
+      V parentVal = _values.get(parentIndex);
+      if (!_valid(parentVal, val)) return false;
     }
     return true;
   }
 
+  private void _assertInvariant() {
+    if (!_invariant()) throw new IllegalStateException("Invariant violation");
+  }
+
+  public String toString() {
+    StringJoiner sj = new StringJoiner(", ", "[", "] (size = " + size() + ", valid = " + valid() + ")");
+    for (V val : this) {
+      sj.add(val.toString());
+    }
+    return sj.toString();
+  }
 }
