@@ -126,8 +126,11 @@ public class HeapTest {
   }
 
   @Test public void testPopWithEmptyHeap() {
-    Heap<Integer> heap = new Heap<Integer>(Heap.Type.MIN);
-    assertThrows(IllegalStateException.class, () -> { heap.pop(); });
+    Heap<Integer> minHeap = new Heap<Integer>(Heap.Type.MIN);
+    assertThrows(IllegalStateException.class, () -> { minHeap.pop(); });
+
+    Heap<Integer> maxHeap = new Heap<Integer>(Heap.Type.MAX);
+    assertThrows(IllegalStateException.class, () -> { maxHeap.pop(); });
   }
 
   @Test public void testPopWithSimpleValues() {
@@ -164,6 +167,28 @@ public class HeapTest {
     assertHeapEquals(heap, Arrays.asList(3, 2, 1));
     assertEquals(3, (int)heap.pop());
     assertHeapEquals(heap, Arrays.asList(2, 1));
+  }
+
+  @Test public void testPeekWithEmptyHeap() {
+    Heap<Integer> minHeap = new Heap<Integer>(Heap.Type.MIN);
+    assertThrows(IllegalStateException.class, () -> { minHeap.peek(); });
+
+    Heap<Integer> maxHeap = new Heap<Integer>(Heap.Type.MAX);
+    assertThrows(IllegalStateException.class, () -> { maxHeap.peek(); });
+  }
+
+  @Test public void testPeekWithSimpleValues() {
+    Heap<Integer> heap = new Heap<Integer>(Heap.Type.MIN);
+    heap.push(2);
+    assertEquals(2, (int)heap.peek());
+    heap.push(1);
+    assertEquals(1, (int)heap.peek());
+
+    heap = new Heap<Integer>(Heap.Type.MAX);
+    heap.push(1);
+    assertEquals(1, (int)heap.peek());
+    heap.push(2);
+    assertEquals(2, (int)heap.peek());
   }
 
   private static <V extends Comparable<? super V>> void assertHeapEquals(Heap<V> heap, List<V> vals) {
