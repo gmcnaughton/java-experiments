@@ -5,22 +5,58 @@
  * Learn how to create Gradle builds at https://guides.gradle.org/creating-new-gradle-builds/
  */
 
+buildscript {
+  repositories {
+    jcenter()
+  }
+
+  dependencies {
+    classpath 'org.junit.platform:junit-platform-gradle-plugin:1.1.0'
+  }
+}
+
+// In this section you declare where to find the dependencies of your project
+repositories {
+  // Use jcenter for resolving your dependencies.
+  // You can declare any Maven/Ivy/file repository here.
+  jcenter()
+}
+
+ext.junitJupiterVersion  = '5.1.0'
+
 // Apply the java plugin to add support for Java
 apply plugin: 'java'
 
 // Apply the application plugin to add support for building an application
 apply plugin: 'application'
 
-// In this section you declare where to find the dependencies of your project
-repositories {
-    // Use jcenter for resolving your dependencies.
-    // You can declare any Maven/Ivy/file repository here.
-    jcenter()
+// Apply the junit plugin to add support for JUnit
+apply plugin: 'org.junit.platform.gradle.plugin'
+
+// Configure JUnit 5, per https://github.com/junit-team/junit5-samples/blob/r5.1.0/junit5-gradle-consumer/build.gradle
+junitPlatform {
+  // platformVersion '1.1.0'
+  filters {
+    engines {
+      // include 'junit-jupiter', 'junit-vintage'
+      // exclude 'custom-engine'
+    }
+    tags {
+      // include 'fast'
+      exclude 'slow'
+    }
+    // includeClassNamePattern '.*Test'
+  }
+  // configurationParameter 'junit.jupiter.conditions.deactivate', '*'
+  // enableStandardTestTask true
+  // reportsDir file('build/test-results/junit-platform') // this is the default
+  // logManager 'org.apache.logging.log4j.jul.LogManager'
 }
 
 dependencies {
-    // Use JUnit test framework
-    testCompile 'junit:junit:4.12'
+  // JUnit Jupiter API and TestEngine implementation
+  testCompile("org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}")
+  testRuntime("org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}")
 }
 
 // Define the main class for the application
