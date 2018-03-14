@@ -23,9 +23,9 @@ import java.util.StringJoiner;
  * Examples:
  *
  *     Heap h = new Heap<Integer>(Heap.Type.MIN);
- *     h.add(1);
- *     h.add(100);
- *     h.add(2);
+ *     h.push(1);
+ *     h.push(100);
+ *     h.push(2);
  *
  *     h.pop(); // => 1
  *     h.pop(); // => 2
@@ -38,15 +38,14 @@ import java.util.StringJoiner;
  */
 public class Heap<V extends Comparable<? super V>> implements Iterable<V> {
   public static void main(String[] args) {
-    tests();
     // Heap<Integer> h = new Heap<Integer>(Type.MIN);
-    // h.add(100);
-    // h.add(2);
-    // h.add(3);
-    // h.add(3);
-    // h.add(101);
-    // h.add(4);
-    // h.add(2);
+    // h.push(100);
+    // h.push(2);
+    // h.push(3);
+    // h.push(3);
+    // h.push(101);
+    // h.push(4);
+    // h.push(2);
     // System.out.println(h);
 
     // System.out.println("\nPopping...");
@@ -58,63 +57,12 @@ public class Heap<V extends Comparable<? super V>> implements Iterable<V> {
     // }
     // System.out.println("Done.");
 
-    // h.add(100000);
-    // h.add(1);
-    // h.add(2);
+    // h.push(100000);
+    // h.push(1);
+    // h.push(2);
     // h.pop();
     // System.out.println(h);
   }
-
-  public static void tests() {
-    test("Empty", new ArrayList<Integer>(Arrays.asList()), Type.MAX, true);
-    test("Empty",new ArrayList<Integer>(Arrays.asList()), Type.MIN, true);
-
-    // test("Unary null", new ArrayList<Integer>(Arrays.asList((Integer)null)), Type.MAX, true);
-    // test("Unary null", new ArrayList<Integer>(Arrays.asList((Integer)null)), Type.MIN, true);
-
-    test("Unary", new ArrayList<Integer>(Arrays.asList(1)), Type.MAX, true);
-    test("Unary", new ArrayList<Integer>(Arrays.asList(1)), Type.MIN, true);
-
-    test("One two three", new ArrayList<Integer>(Arrays.asList(1, 2, 3)), Type.MAX, false);
-    test("One two three", new ArrayList<Integer>(Arrays.asList(1, 2, 3)), Type.MIN, true);
-
-    test("Equal", new ArrayList<Integer>(Arrays.asList(1, 1, 1)), Type.MIN, true);
-    test("Equal", new ArrayList<Integer>(Arrays.asList(1, 1, 1)), Type.MAX, true);
-
-    // test("With some nulls", new ArrayList<Integer>(Arrays.asList(1, 1, (Integer)null)), Type.MIN, true);
-    // test("With some nulls", new ArrayList<Integer>(Arrays.asList(1, (Integer)null, 1)), Type.MAX, true);
-
-    test("Complex", new ArrayList<Integer>(Arrays.asList(
-                    1,
-           2,                 100,
-        3,    4,        9998,      9999,
-      9, 3, 5, 101, 10001, 9998, 9999, 9999)
-    ), Type.MIN, true);
-
-    test("Complex invalid", new ArrayList<Integer>(Arrays.asList(
-                    1,
-           2,                 100,
-        3,    4,        9998,            9999,
-      9, 3, 5, 101, 10001, 9998, /*here*/1, 9999)
-    ), Type.MIN, false);
-
-    // test("Unbalanced", new ArrayList<Integer>(Arrays.asList(
-    //                 1,
-    //        2,                null,
-    //     3,    null,    null,      null,
-    //   null, null, null, null, null, null, null, null)
-    // ), Type.MIN, true);
-  }
-
-  public static void test(String s, ArrayList<Integer> arr, Type type, boolean expected) {
-    Heap<Integer> h = new Heap<Integer>(type);
-    for (Integer i : arr) {
-      h.add(i);
-    }
-    System.out.println(s + ": " + h);
-  }
-
-  //////////////////////////////////////////////////////////////////////////////
 
   public enum Type {
     MIN,
@@ -135,7 +83,7 @@ public class Heap<V extends Comparable<? super V>> implements Iterable<V> {
     return _values.get(0);
   }
 
-  public void add(V val) { // a.k.a. push
+  public void push(V val) { // a.k.a. insert
     if (val == null) throw new IllegalArgumentException("Cannot add null to heap");
 
     _values.add(val);
@@ -146,7 +94,7 @@ public class Heap<V extends Comparable<? super V>> implements Iterable<V> {
     _assertInvariant();
   }
 
-  public V pop() {
+  public V pop() { // a.k.a. extract-max
     if (_values.isEmpty()) throw new IllegalStateException("Heap is empty");
 
     V val = _values.get(0);
@@ -161,8 +109,16 @@ public class Heap<V extends Comparable<? super V>> implements Iterable<V> {
     return val;
   }
 
+  public void replace(V val) {
+    if (_values.isEmpty()) throw new IllegalStateException("Cannot replace on empty heap");
+
+    _values.set(0, val);
+    _siftDown(0);
+    _assertInvariant();
+  }
+
   public boolean valid() {
-    return _invariant();
+    return _checkTnvariant();
   }
 
   public Iterator<V> iterator() {
@@ -258,7 +214,7 @@ public class Heap<V extends Comparable<? super V>> implements Iterable<V> {
     return (_type == Type.MAX) ? cmp >= 0 : cmp <= 0;
   }
 
-  private boolean _invariant() {
+  private boolean _checkInvariant() {
     // Note: stop when we reach the root element (i == 0); a one-element heap trivially fulfills the heap property
     for (int i = size() - 1; i > 0; i--) {
       V val = _values.get(i);
@@ -270,7 +226,7 @@ public class Heap<V extends Comparable<? super V>> implements Iterable<V> {
   }
 
   private void _assertInvariant() {
-    if (!_invariant()) throw new IllegalStateException("Invariant violation");
+    if (!_checkInvariant()) throw new IllegalStateException("Invariant violation");
   }
 
   public String toString() {
