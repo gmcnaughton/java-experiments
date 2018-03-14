@@ -36,7 +36,7 @@ import java.util.StringJoiner;
  *
  *   javac -Xlint:unchecked Heap.java && java Heap
  */
-public class Heap<V extends Comparable<? super V>> implements Iterable<V> {
+public class Heap<V extends Comparable<? super V>> implements Iterable<V>, Cloneable {
   public static void main(String[] args) {
     // Heap<Integer> h = new Heap<Integer>(Type.MIN);
     // h.push(100);
@@ -118,7 +118,7 @@ public class Heap<V extends Comparable<? super V>> implements Iterable<V> {
   }
 
   public boolean valid() {
-    return _checkTnvariant();
+    return _checkInvariant();
   }
 
   public Iterator<V> iterator() {
@@ -229,7 +229,18 @@ public class Heap<V extends Comparable<? super V>> implements Iterable<V> {
     if (!_checkInvariant()) throw new IllegalStateException("Invariant violation");
   }
 
-  public String toString() {
+  @Override public Heap<V> clone() {
+    try {
+      Heap<V> clone = (Heap<V>)super.clone();
+      clone._values = (ArrayList<V>)_values.clone();
+      clone._type = _type;
+      return clone;
+    } catch (CloneNotSupportedException e) {
+      throw new AssertionError(); // can't happen
+    }
+  }
+
+  @Override public String toString() {
     StringJoiner sj = new StringJoiner(", ", "[", "] (size = " + size() + ", valid = " + valid() + ")");
     for (V val : this) {
       sj.add(val.toString());
