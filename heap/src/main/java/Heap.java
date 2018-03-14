@@ -23,45 +23,37 @@ import java.util.StringJoiner;
  * Examples:
  *
  *     Heap h = new Heap<Integer>(Heap.Type.MIN);
- *     h.push(1);
  *     h.push(100);
  *     h.push(2);
+ *     h.push(1);
+ * 
+ *     h.peek(); // => 1
  *
  *     h.pop(); // => 1
  *     h.pop(); // => 2
  *     h.pop(); // => 100
  *     h.pop(); // => IllegalStateException
- *
- * Running:
- *
- *   javac -Xlint:unchecked Heap.java && java Heap
  */
 public class Heap<V extends Comparable<? super V>> implements Iterable<V>, Cloneable {
   public static void main(String[] args) {
-    // Heap<Integer> h = new Heap<Integer>(Type.MIN);
-    // h.push(100);
-    // h.push(2);
-    // h.push(3);
-    // h.push(3);
-    // h.push(101);
-    // h.push(4);
-    // h.push(2);
-    // System.out.println(h);
+    Heap<Integer> h = new Heap<Integer>(Type.MIN);
+    h.push(100);
+    h.push(2);
+    h.push(3);
+    h.push(3);
+    h.push(101);
+    h.push(4);
+    h.push(2);
+    System.out.println(h);
 
-    // System.out.println("\nPopping...");
-    // while (!h.isEmpty()) {
-    //   Integer i = h.pop();
-    //   System.out.println(i);
-    //   System.out.println(h);
-    //   System.out.println("");
-    // }
-    // System.out.println("Done.");
-
-    // h.push(100000);
-    // h.push(1);
-    // h.push(2);
-    // h.pop();
-    // System.out.println(h);
+    System.out.println("\nPopping...");
+    while (!h.isEmpty()) {
+      Integer i = h.pop();
+      System.out.println(i);
+      System.out.println(h);
+      System.out.println("");
+    }
+    System.out.println("Done.");
   }
 
   public enum Type {
