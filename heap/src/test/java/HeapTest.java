@@ -9,31 +9,31 @@ import java.util.Arrays;
 
 public class HeapTest {
   @Test public void testEmptyHeapIsValid() {
-    Heap<Integer> heap = new Heap<Integer>(Heap.Type.MIN);
+    Heap<Integer> heap = new Heap<>(Heap.Type.MIN);
     assertTrue(heap.valid());
 
-    heap = new Heap<Integer>(Heap.Type.MAX);
+    heap = new Heap<>(Heap.Type.MAX);
     assertTrue(heap.valid());
   }
 
   @Test public void testUnaryHeapIsValid() {
-    Heap<Integer> heap = new Heap<Integer>(Heap.Type.MIN);
+    Heap<Integer> heap = new Heap<>(Heap.Type.MIN);
     heap.push(1);
     assertTrue(heap.valid());
 
-    heap = new Heap<Integer>(Heap.Type.MAX);
+    heap = new Heap<>(Heap.Type.MAX);
     heap.push(1);
     assertTrue(heap.valid());
   }
 
   @Test public void testSimpleHeapIsValid() {
-    Heap<Integer> heap = new Heap<Integer>(Heap.Type.MIN);
+    Heap<Integer> heap = new Heap<>(Heap.Type.MIN);
     heap.push(1);
     heap.push(2);
     heap.push(3);
     assertTrue(heap.valid());
 
-    heap = new Heap<Integer>(Heap.Type.MAX);
+    heap = new Heap<>(Heap.Type.MAX);
     heap.push(1);
     heap.push(2);
     heap.push(3);
@@ -41,13 +41,13 @@ public class HeapTest {
   }
 
   @Test public void testHeapWithEqualValuesIsValid() {
-    Heap<Integer> heap = new Heap<Integer>(Heap.Type.MIN);
+    Heap<Integer> heap = new Heap<>(Heap.Type.MIN);
     heap.push(1);
     heap.push(1);
     heap.push(1);
     assertTrue(heap.valid());
 
-    heap = new Heap<Integer>(Heap.Type.MAX);
+    heap = new Heap<>(Heap.Type.MAX);
     heap.push(1);
     heap.push(1);
     heap.push(1);
@@ -55,14 +55,14 @@ public class HeapTest {
   }
 
   @Test public void testHeapWithRandomValuesIsValid() {
-    Heap<Integer> heap = new Heap<Integer>(Heap.Type.MIN);
+    Heap<Integer> heap = new Heap<>(Heap.Type.MIN);
     for (int i = 0; i < 25; i++) {
       // random values in the range [Integer.MIN_VALUE, Integer.MAX_VALUE)
       heap.push((int)((long)Integer.MAX_VALUE - (long)Math.floor(Math.random() * (Integer.MAX_VALUE - Integer.MIN_VALUE))));
     }
     assertTrue(heap.valid());
 
-    heap = new Heap<Integer>(Heap.Type.MAX);
+    heap = new Heap<>(Heap.Type.MAX);
     for (int i = 0; i < 25; i++) {
       heap.push((int)((long)Integer.MAX_VALUE - (long)Math.floor(Math.random() * (Integer.MAX_VALUE - Integer.MIN_VALUE))));
     }
@@ -70,7 +70,7 @@ public class HeapTest {
   }
 
   @Test public void testPushWithEmptyHeap() {
-    Heap<Integer> heap = new Heap<Integer>(Heap.Type.MIN);
+    Heap<Integer> heap = new Heap<>(Heap.Type.MIN);
     assertTrue(heap.isEmpty());
     assertEquals(0, heap.size());
     heap.push(123);
@@ -78,7 +78,7 @@ public class HeapTest {
     assertEquals(1, heap.size());
     assertEquals(123, (int)heap.peek());
 
-    heap = new Heap<Integer>(Heap.Type.MAX);
+    heap = new Heap<>(Heap.Type.MAX);
     assertTrue(heap.isEmpty());
     assertEquals(0, heap.size());
     heap.push(123);
@@ -88,37 +88,37 @@ public class HeapTest {
   }
 
   @Test public void testPushMaximalValue() {
-    Heap<Integer> heap = new Heap<Integer>(Heap.Type.MIN);
+    Heap<Integer> heap = new Heap<>(Heap.Type.MIN);
     heap.push(2);
     heap.push(1);
     assertHeapEquals(heap, Arrays.asList(1, 2));
 
-    heap = new Heap<Integer>(Heap.Type.MAX);
+    heap = new Heap<>(Heap.Type.MAX);
     heap.push(1);
     heap.push(2);
     assertHeapEquals(heap, Arrays.asList(2, 1));
   }
 
   @Test public void testPushMinimalValue() {
-    Heap<Integer> heap = new Heap<Integer>(Heap.Type.MIN);
+    Heap<Integer> heap = new Heap<>(Heap.Type.MIN);
     heap.push(1);
     heap.push(2);
     assertHeapEquals(heap, Arrays.asList(1, 2));
 
-    heap = new Heap<Integer>(Heap.Type.MAX);
+    heap = new Heap<>(Heap.Type.MAX);
     heap.push(2);
     heap.push(1);
     assertHeapEquals(heap, Arrays.asList(2, 1));
   }
 
   @Test public void testPushIntermediateValue() {
-    Heap<Integer> heap = new Heap<Integer>(Heap.Type.MIN);
+    Heap<Integer> heap = new Heap<>(Heap.Type.MIN);
     heap.push(1);
     heap.push(3);
     heap.push(2);
     assertHeapEquals(heap, Arrays.asList(1, 2, 3));
 
-    heap = new Heap<Integer>(Heap.Type.MAX);
+    heap = new Heap<>(Heap.Type.MAX);
     heap.push(1);
     heap.push(3);
     heap.push(2);
@@ -126,15 +126,15 @@ public class HeapTest {
   }
 
   @Test public void testPopWithEmptyHeap() {
-    Heap<Integer> minHeap = new Heap<Integer>(Heap.Type.MIN);
+    Heap<Integer> minHeap = new Heap<>(Heap.Type.MIN);
     assertThrows(IllegalStateException.class, () -> { minHeap.pop(); });
 
-    Heap<Integer> maxHeap = new Heap<Integer>(Heap.Type.MAX);
+    Heap<Integer> maxHeap = new Heap<>(Heap.Type.MAX);
     assertThrows(IllegalStateException.class, () -> { maxHeap.pop(); });
   }
 
   @Test public void testPopWithSimpleValues() {
-    Heap<Integer> heap = new Heap<Integer>(Heap.Type.MIN);
+    Heap<Integer> heap = new Heap<>(Heap.Type.MIN);
     heap.push(2);
     heap.push(1);
     assertHeapEquals(heap, Arrays.asList(1, 2));
@@ -142,7 +142,7 @@ public class HeapTest {
     assertEquals(2, (int)heap.pop());
     assertTrue(heap.isEmpty());
 
-    heap = new Heap<Integer>(Heap.Type.MAX);
+    heap = new Heap<>(Heap.Type.MAX);
     heap.push(1);
     heap.push(2);
     assertHeapEquals(heap, Arrays.asList(2, 1));
@@ -152,7 +152,7 @@ public class HeapTest {
   }
 
   @Test public void testPopWithCompetingValues() {
-    Heap<Integer> heap = new Heap<Integer>(Heap.Type.MIN);
+    Heap<Integer> heap = new Heap<>(Heap.Type.MIN);
     heap.push(1);
     heap.push(2);
     heap.push(3);
@@ -160,7 +160,7 @@ public class HeapTest {
     assertEquals(1, (int)heap.pop());
     assertHeapEquals(heap, Arrays.asList(2, 3));
 
-    heap = new Heap<Integer>(Heap.Type.MAX);
+    heap = new Heap<>(Heap.Type.MAX);
     heap.push(3);
     heap.push(2);
     heap.push(1);
@@ -170,21 +170,21 @@ public class HeapTest {
   }
 
   @Test public void testPeekWithEmptyHeap() {
-    Heap<Integer> minHeap = new Heap<Integer>(Heap.Type.MIN);
+    Heap<Integer> minHeap = new Heap<>(Heap.Type.MIN);
     assertThrows(IllegalStateException.class, () -> { minHeap.peek(); });
 
-    Heap<Integer> maxHeap = new Heap<Integer>(Heap.Type.MAX);
+    Heap<Integer> maxHeap = new Heap<>(Heap.Type.MAX);
     assertThrows(IllegalStateException.class, () -> { maxHeap.peek(); });
   }
 
   @Test public void testPeekWithSimpleValues() {
-    Heap<Integer> heap = new Heap<Integer>(Heap.Type.MIN);
+    Heap<Integer> heap = new Heap<>(Heap.Type.MIN);
     heap.push(2);
     assertEquals(2, (int)heap.peek());
     heap.push(1);
     assertEquals(1, (int)heap.peek());
 
-    heap = new Heap<Integer>(Heap.Type.MAX);
+    heap = new Heap<>(Heap.Type.MAX);
     heap.push(1);
     assertEquals(1, (int)heap.peek());
     heap.push(2);

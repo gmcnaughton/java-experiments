@@ -33,6 +33,13 @@ apply plugin: 'application'
 // Apply the junit plugin to add support for JUnit
 apply plugin: 'org.junit.platform.gradle.plugin'
 
+// Enable javac linting options on compilation
+gradle.projectsEvaluated {
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+    }
+}
+
 // Configure JUnit 5, per https://github.com/junit-team/junit5-samples/blob/r5.1.0/junit5-gradle-consumer/build.gradle
 junitPlatform {
   // platformVersion '1.1.0'

@@ -37,7 +37,7 @@ import java.util.StringJoiner;
  */
 public class Heap<V extends Comparable<? super V>> implements Iterable<V>, Cloneable {
   public static void main(String[] args) {
-    Heap<Integer> h = new Heap<Integer>(Type.MIN);
+    Heap<Integer> h = new Heap<>(Type.MIN);
     h.push(100);
     h.push(2);
     h.push(3);
@@ -66,7 +66,7 @@ public class Heap<V extends Comparable<? super V>> implements Iterable<V>, Clone
   private Type _type;
 
   public Heap(Type type) {
-    _values = new ArrayList<V>();
+    _values = new ArrayList<>();
     _type = type;
   }
 
@@ -260,8 +260,9 @@ public class Heap<V extends Comparable<? super V>> implements Iterable<V>, Clone
 
   @Override public Heap<V> clone() {
     try {
+      @SuppressWarnings("unchecked")
       Heap<V> clone = (Heap<V>)super.clone();
-      clone._values = (ArrayList<V>)_values.clone();
+      clone._values = new ArrayList<>(_values);
       clone._type = _type;
       return clone;
     } catch (CloneNotSupportedException e) {
