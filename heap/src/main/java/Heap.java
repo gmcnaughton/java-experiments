@@ -5,24 +5,23 @@ import java.util.StringJoiner;
 
 /**
  * Heap implements a standard heap data structure.
- *
- * A heap is a tree which maintains the heap property: the value of a parent
- * node is greater-than-or-equal-to (for a max-heap) or less-than-or-equal-to
- * (min-heap) its child nodes. This property is transitive, meaning a node's
- * value is greater-than-or-equal-to all of its descendants.
- *
- * No other relationship is guaranteed to hold between nodes in the tree.
- * Siblings are not ordered with respect to each other. Only the relationship
- * between parents and children is enforced.
- *
- * Values in a heap must be comparable (naturally ordered) so that the heap
+ * 
+ * <p>A heap is a tree which satisfies the *heap property*: the value of a parent
+ * is greater than or equal to (for a max-heap) or less than or equal to (for a min-
+ * heap) the values of its children.
+ * 
+ * <p>No other relationship is guaranteed between nodes. Siblings and cousins are not
+ * ordered with respect to each other. Only the relationship between parents and
+ * children is enforced.
+ * 
+ * <p>Values in a heap must be comparable (naturally ordered) so that the heap
  * property can be maintained.
+ * 
+ * <p>Operations in this library are not thread-safe.
  *
- * This implementation is not threadsafe.
- *
- * Examples:
- *
- *     Heap h = new Heap<Integer>(Heap.Type.MIN);
+ * <pre>
+ * {@code
+ *     Heap<Integer> h = new Heap<>(Heap.Type.MIN);
  *     h.push(100);
  *     h.push(2);
  *     h.push(1);
@@ -33,6 +32,8 @@ import java.util.StringJoiner;
  *     h.pop(); // => 2
  *     h.pop(); // => 100
  *     h.pop(); // => IllegalStateException
+ * }
+ * </pre>
  */
 public class Heap<V extends Comparable<? super V>> implements Iterable<V>, Cloneable {
   public static void main(String[] args) {
@@ -69,14 +70,23 @@ public class Heap<V extends Comparable<? super V>> implements Iterable<V>, Clone
     _type = type;
   }
 
-  public V peek() { // a.k.a. find-max, find-min
+  /**
+   * @return the maximum value (for a max-heap) or minimum value (for a min-heap)
+   * @throws IllegalStateException if the heap is empty
+   */
+  public V peek() {
     if (_values.isEmpty()) throw new IllegalStateException("Heap is empty");
 
     return _values.get(0);
   }
 
-  public void push(V val) { // a.k.a. insert
-    if (val == null) throw new IllegalArgumentException("Cannot add null to heap");
+  /**
+   * Adds the given value to the heap.
+   *
+   * @param val the value to add
+   */
+  public void push(V val) {
+    if (val == null) throw new IllegalArgumentException("Cannot add null");
 
     _values.add(val);
     if (_values.size() > 1) {
@@ -86,7 +96,13 @@ public class Heap<V extends Comparable<? super V>> implements Iterable<V>, Clone
     _assertInvariant();
   }
 
-  public V pop() { // a.k.a. extract-max
+  /**
+   * Removes the first value in the heap and returns it.
+   *
+   * @return maximum value (for a max-heap) or minimum value (for a min-heap)
+   * @throws IllegalStateException if the heap is empty
+   */
+  public V pop() {
     if (_values.isEmpty()) throw new IllegalStateException("Heap is empty");
 
     V val = _values.get(0);
@@ -101,14 +117,29 @@ public class Heap<V extends Comparable<? super V>> implements Iterable<V>, Clone
     return val;
   }
 
-  public void replace(V val) {
-    if (_values.isEmpty()) throw new IllegalStateException("Cannot replace on empty heap");
+  /**
+   * Replaces the first value in the heap with the given value. This is more
+   * efficient than a pop followed by a push, as only one sift operation is
+   * needed to maintain the heap property.
+   *
+   * @param val the value to add
+   * @return maximum value (for a max-heap) or minimum value (for a min-heap)
+   * @throws IllegalStateException if the heap is empty
+   */
+  public V replace(V val) {
+    if (_values.isEmpty()) throw new IllegalStateException("Heap is empty");
 
+    V origVal = _values.get(0);
     _values.set(0, val);
     _siftDown(0);
     _assertInvariant();
+    return origVal;
   }
 
+  /**
+   * @return true if the heap property is currently satisfied. A value of false
+   *         indicates an internal error!
+   */
   public boolean valid() {
     return _checkInvariant();
   }
@@ -117,10 +148,16 @@ public class Heap<V extends Comparable<? super V>> implements Iterable<V>, Clone
     return _values.iterator();
   }
 
+  /**
+   * @return true if the heap contains no values
+   */
   public boolean isEmpty() {
     return _values.isEmpty();
   }
 
+  /**
+   * @return the number of values in the heap
+   */
   public int size() {
     return _values.size();
   }
