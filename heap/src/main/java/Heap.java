@@ -4,14 +4,15 @@ import java.util.Iterator;
 import java.util.StringJoiner;
 
 /**
- * Heap implements a standard heap data structure.
+ * Heap implements a standard <a href="https://en.wikipedia.org/wiki/Heap_(data_structure)">
+ * heap data structure</a>.
  * 
- * <p>A heap is a tree which satisfies the *heap property*: the value of a parent
+ * <p>A heap is a tree which satisfies the <i>heap property</i>: the value of a parent
  * is greater than or equal to (for a max-heap) or less than or equal to (for a
  * min-heap) the values of its children.
  * 
  * <p>No other relationship is guaranteed between nodes. Siblings and cousins are not
- * ordered with respect to each other. Only the relationship between parents and
+ * ordered with respect to one another; only the relationship between parents and
  * children is enforced.
  * 
  * <p>Values in a heap must be comparable (naturally ordered) so that the heap
