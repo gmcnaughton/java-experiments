@@ -3,8 +3,8 @@
 `Heap` implements a standard heap data structure in Java.
 
 A heap is a tree which satisfies the *heap property*: the value of a parent
-is greater than or equal to (for a max-heap) or less than or equal to (for a min-
-heap) the values of its children.
+is greater than or equal to (for a max-heap) or less than or equal to (for a
+min-heap) the values of its children.
 
 No other relationship is guaranteed between nodes. Siblings and cousins are not
 ordered with respect to each other. Only the relationship between parents and
@@ -18,6 +18,7 @@ Operations in this library are not thread-safe.
 ### Installation
 
     git clone https://github.com/gmcnaughton/java-experiments.git
+    cd java-experiments/heap
     gradle test
 
 ### Usage

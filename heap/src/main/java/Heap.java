@@ -7,8 +7,8 @@ import java.util.StringJoiner;
  * Heap implements a standard heap data structure.
  * 
  * <p>A heap is a tree which satisfies the *heap property*: the value of a parent
- * is greater than or equal to (for a max-heap) or less than or equal to (for a min-
- * heap) the values of its children.
+ * is greater than or equal to (for a max-heap) or less than or equal to (for a
+ * min-heap) the values of its children.
  * 
  * <p>No other relationship is guaranteed between nodes. Siblings and cousins are not
  * ordered with respect to each other. Only the relationship between parents and
